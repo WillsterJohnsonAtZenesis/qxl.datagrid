@@ -30,7 +30,7 @@ qx.Class.define("qxl.datagrid.demo.array.ArrayDemo", {
     super();
     this.setLayout(new qx.ui.layout.VBox(10));
     let grid = this.getQxObject("grid");
-    this.add(new qx.ui.basic.Label("Double-click a title to edit it"), { flex: 0 });
+    this.add(new qx.ui.basic.Label("Double-click a title or author to edit it"), { flex: 0 });
     this.add(grid, { flex: 1 });
   },
 
@@ -62,7 +62,8 @@ qx.Class.define("qxl.datagrid.demo.array.ArrayDemo", {
         new qxl.datagrid.column.TextColumn().set({
           path: "author",
           caption: "Author",
-          minWidth: 200
+          minWidth: 200,
+          editable: true
         })
       );
 
