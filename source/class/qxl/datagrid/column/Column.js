@@ -166,6 +166,17 @@ qx.Class.define("qxl.datagrid.column.Column", {
       nullable: true,
       check: ["asc", "desc"],
       event: "changeSortOrder"
+    },
+
+    /**
+     * Whether or not the column is editable, enforced by the widgetFactory
+     *
+     * If true, then double clicking the cell will swap in the widget returned by {@link #createWidgetForEdit}
+     */
+    editable: {
+      check: "Boolean",
+      init: false,
+      event: "changeEditable"
     }
   },
 
@@ -254,7 +265,7 @@ qx.Class.define("qxl.datagrid.column.Column", {
     },
 
     /**
-     * Called to implement the binding
+     * Called to implement the binding for a display widget
      *
      * @param {qx.ui.core.Widget} widget
      * @param {qx.core.Object} model
@@ -262,6 +273,38 @@ qx.Class.define("qxl.datagrid.column.Column", {
      * @returns {qxl.datagrid.binding.Bindings} the object to dispose of to remove the binding
      */
     bindWidget(widget, model, factory) {
+      return this.initBinding(widget, model, factory);
+    },
+
+    /**
+     * Called to implement the binding for an editor widget
+     *
+     * @param {qx.ui.core.Widget} widget
+     * @param {qx.core.Object} model
+     * @param {qxl.datagrid.ui.factory.IWidgetFactory} factory
+     * @returns {qxl.datagrid.binding.Bindings} the object to dispose of to remove the binding
+     */
+    bindEditor(widget, model, factory) {
+      let path = this.getPath();
+      let bindings = this.initBinding(widget, model, factory);
+      if (path) {
+        if (model) {
+          let bindingId = widget.bind("value", model, path, this.getBindingOptions()(widget, model));
+          bindings.add(widget, bindingId);
+        }
+      }
+      return bindings;
+    },
+
+    /**
+     * Initializes bindings between a widget and a model
+     *
+     * @param {qx.ui.core.Widget} widget
+     * @param {qx.core.Object} model
+     * @param {qxl.datagrid.ui.factory.IWidgetFactory} factory
+     * @returns {qxl.datagrid.binding.Bindings} the object to dispose of to remove the binding
+     */
+    initBinding(widget, model, factory) {
       let path = this.getPath();
       let bindings = new qxl.datagrid.binding.Bindings(model);
       if (path) {
@@ -315,6 +358,14 @@ qx.Class.define("qxl.datagrid.column.Column", {
       return new qx.ui.basic.Label().set({
         appearance: "qxl-datagrid-cell"
       });
+    },
+
+    /**
+     * Creates a widget for editing a value for for a single cell
+     * @returns {qx.ui.core.Widget}
+     */
+    createWidgetForEdit() {
+      return new qx.ui.form.TextField();
     },
 
     /**

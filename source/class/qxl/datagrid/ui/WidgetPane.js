@@ -144,7 +144,7 @@ qx.Class.define("qxl.datagrid.ui.WidgetPane", {
         let id = cellData.row + ":" + cellData.column;
         // prettier-ignore
         if (invalidateAll || cellData.row < minDataRowIndex || cellData.row > maxRowIndex || cellData.column < minColumnIndex || cellData.column > maxColumnIndex) {
-          this.__fullDiscardWidget(child, id); 
+          this.__fullDiscardWidget(child, id);
         } else {
           children[id] = child;
         }
@@ -194,6 +194,21 @@ qx.Class.define("qxl.datagrid.ui.WidgetPane", {
             this._add(child);
             qx.ui.core.queue.Layout.add(child);
             this.__widgetFactory.bindWidget(child, model);
+
+            child.addListener("dbltap", () => {
+              let editor = this.__widgetFactory.getEditorFor(rowSizeData.rowIndex, columnSizeData.columnIndex);
+              if (!editor) {
+                return;
+              }
+              editor.setUserData("qxl.datagrid.cell.isEditor", true);
+              editor.setUserData("qxl.datagrid.cellData", child.getUserData("qxl.datagrid.cellData"));
+              editor.setLayoutProperties(child.getLayoutProperties());
+              this.__fullDiscardWidget(child, id);
+              children[id] = editor;
+              this._add(editor);
+              qx.ui.core.queue.Layout.add(editor);
+              this.__widgetFactory.bindEditor(editor, model);
+            });
           }
 
           const callbackArguments = [model, child, currentRelativePosition, currentAbsolutePosition];
@@ -269,7 +284,11 @@ qx.Class.define("qxl.datagrid.ui.WidgetPane", {
         this.__widgetFactory.unbindWidget(child);
         child.setUserData("qxl.datagrid.cellData", null);
         this._remove(child);
-        this.__widgetFactory.disposeWidget(child);
+        if (child.getUserData("qxl.datagrid.cell.isEditor")) {
+          this.__widgetFactory.disposeEditor(child);
+        } else {
+          this.__widgetFactory.disposeWidget(child);
+        }
       }
       if (id in this.__children) {
         delete this.__children[id];
@@ -284,6 +303,14 @@ qx.Class.define("qxl.datagrid.ui.WidgetPane", {
      * Event handler for tap events
      */
     __onTap(evt) {
+      if (!evt.getTarget().getUserData("qxl.datagrid.cell.isEditor")) {
+        for (let [id, child] of Object.entries(this.__children)) {
+          if (child.getUserData("qxl.datagrid.cell.isEditor")) {
+            this.__fullDiscardWidget(child, id);
+          }
+        }
+        this.updateWidgets();
+      }
       let widget = qx.ui.core.Widget.getWidgetByElement(evt.getOriginalTarget());
       let model = null;
       while (widget && widget != this && !model) {

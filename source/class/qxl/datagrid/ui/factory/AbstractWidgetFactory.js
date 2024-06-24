@@ -33,6 +33,7 @@ qx.Class.define("qxl.datagrid.ui.factory.AbstractWidgetFactory", {
   construct(columns) {
     super();
     this.__widgets = {};
+    this.__editors = {};
     if (columns) {
       this.setColumns(columns);
     }
@@ -62,6 +63,9 @@ qx.Class.define("qxl.datagrid.ui.factory.AbstractWidgetFactory", {
 
     /** @type {string} the appearance to set on each widget */
     __widgetAppearance: null,
+
+    /** @type {string} the appearance to set on each editor */
+    __editorAppearance: null,
 
     /**
      * Apply for `columns`
@@ -104,13 +108,37 @@ qx.Class.define("qxl.datagrid.ui.factory.AbstractWidgetFactory", {
     /**
      * @override
      */
+    getEditorFor(rowIndex, columnIndex) {
+      let id = rowIndex + ":" + columnIndex;
+      let editor = this.__editors[id];
+      if (!editor) {
+        let column = this.getColumns().getColumn(columnIndex);
+        editor = this.__editors[id] = this._createEditor(column);
+        if (!editor) {
+          return null;
+        }
+        if (this.__editorAppearance) {
+          editor.setAppearance(this.__editorAppearance);
+        }
+        editor.setUserData("qxl.datagrid.factory.AbstractWidgetFactory.bindingData", {
+          rowIndex: rowIndex,
+          columnIndex: columnIndex,
+          column: column
+        });
+      }
+      return editor;
+    },
+
+    /**
+     * @override
+     */
     getModelForWidget(widget) {
       let bindingData = widget.getUserData("qxl.datagrid.factory.AbstractWidgetFactory.bindingData");
       return bindingData?.model || null;
     },
 
     /**
-     * @override
+     * Disposes of the given widget
      */
     disposeWidget(widget) {
       let bindingData = widget.getUserData("qxl.datagrid.factory.AbstractWidgetFactory.bindingData");
@@ -124,6 +152,20 @@ qx.Class.define("qxl.datagrid.ui.factory.AbstractWidgetFactory", {
     },
 
     /**
+     * Disposes of the given editor
+     */
+    disposeEditor(editor) {
+      let bindingData = editor.getUserData("qxl.datagrid.factory.AbstractWidgetFactory.bindingData");
+      let id = bindingData.rowIndex + ":" + bindingData.columnIndex;
+      if (bindingData.model) {
+        this.unbindWidget(editor);
+      }
+      editor.setUserData("qxl.datagrid.factory.AbstractWidgetFactory.bindingData", null);
+      delete this.__editors[id];
+      editor.dispose();
+    },
+
+    /**
      * Called to create a widget
      *
      * @param {qxl.datagrid.column.Column} column the column to create for
@@ -134,12 +176,31 @@ qx.Class.define("qxl.datagrid.ui.factory.AbstractWidgetFactory", {
     },
 
     /**
-     * Returns a list of all widgets
+     * Called to create an editor
      *
-     * @returns {qx.ui.core.Widget[]}
+     * @param {qxl.datagrid.column.Column} column the column to create for
+     * @return {qx.ui.core.Widget}
+     */
+    _createEditor(column) {
+      throw new Error("No such method " + this.classname + "._createEditor");
+    },
+
+    /**
+     * Returns a map of all widgets
+     *
+     * @returns {Record<string, qx.ui.core.Widget>}
      */
     getWidgets() {
       return this.__widgets;
+    },
+
+    /**
+     * Returns a map of all editors
+     *
+     * @returns {Record<string, qx.ui.core.Widget>}
+     */
+    getEditors() {
+      return this.__editors;
     },
 
     /**
@@ -151,6 +212,18 @@ qx.Class.define("qxl.datagrid.ui.factory.AbstractWidgetFactory", {
       this.__widgetAppearance = appearance;
       Object.values(this.getWidgets()).forEach(widget => {
         widget.setAppearance(this.__widgetAppearance);
+      });
+    },
+
+    /**
+     * Updates all editors to the new appearance, and sets the
+     * appearance for new editors
+     * @param appearance {string} the appearance
+     */
+    setEditorAppearances(appearance) {
+      this.__editorAppearance = appearance;
+      Object.values(this.getEditors()).forEach(editor => {
+        editor.setAppearance(this.__editorAppearance);
       });
     }
   }

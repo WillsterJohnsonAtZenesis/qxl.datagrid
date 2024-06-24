@@ -44,7 +44,17 @@ qx.Interface.define("qxl.datagrid.ui.factory.IWidgetFactory", {
     getWidgetFor(rowIndex, columnIndex) {},
 
     /**
-     * Called to bind thej previously given widget to the model
+     * Provides an editor for a given row and column in the datasource; the editor will not
+     * be reused (it will be disposed when no longer needed)
+     *
+     * @param {Integer} rowIndex row in the data source not on the display
+     * @param {Integer} columnIndex column in the data source not on the display
+     * @return {qx.ui.core.Widget} the new widget
+     */
+    getEditorFor(rowIndex, columnIndex) {},
+
+    /**
+     * Called to bind the previously given widget to the model
      *
      * @param {qx.ui.core.Widget} widget the widget to bind
      * @param {qxl.datagrid.column.Column} column the column that it is for
@@ -52,6 +62,16 @@ qx.Interface.define("qxl.datagrid.ui.factory.IWidgetFactory", {
      * @return {qxl.datagrid.binding.IBinding} the binding
      */
     bindWidget(widget, column, model) {},
+
+    /**
+     * Called to bind the previously given editor to the model
+     *
+     * @param {qx.ui.core.Widget} editor the editor to bind
+     * @param {qxl.datagrid.column.Column} column the column that it is for
+     * @param {qx.core.Object} model the model to bind
+     * @return {qxl.datagrid.binding.IBinding} the binding
+     */
+    bindEditor(editor, column, model) {},
 
     /**
      * Unbinds the widget

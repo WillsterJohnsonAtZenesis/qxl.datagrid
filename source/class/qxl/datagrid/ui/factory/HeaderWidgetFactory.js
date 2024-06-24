@@ -57,6 +57,20 @@ qx.Class.define("qxl.datagrid.ui.factory.HeaderWidgetFactory", {
     /**
      * @override
      */
+    bindEditor(editor, model) {
+      let bindingData = editor.getUserData("qxl.datagrid.factory.AbstractWidgetFactory.bindingData");
+      let column = bindingData.column;
+      let bindings = new qxl.datagrid.binding.Bindings();
+      bindings.add(column, column.bind("sortOrder", editor, "sortOrder"));
+      bindings.add(editor, editor.bind("sortOrder", column, "sortOrder"));
+      bindings.add(column, column.bind("caption", editor, "label"));
+      bindings.add(column, column.bind("sortable", editor, "sortable"));
+      bindingData.bindings = bindings;
+    },
+
+    /**
+     * @override
+     */
     unbindWidget(widget) {
       let bindingData = widget.getUserData("qxl.datagrid.factory.AbstractWidgetFactory.bindingData");
       bindingData.bindings.dispose();
@@ -69,6 +83,16 @@ qx.Class.define("qxl.datagrid.ui.factory.HeaderWidgetFactory", {
     _createWidget() {
       let widget = new qxl.datagrid.ui.ColumnHeaderCell();
       return widget;
+    },
+
+    /**
+     * @override
+     */
+    _createEditor(column) {
+      if (column.getEditable()) {
+        return column.createWidgetForEdit();
+      }
+      return null;
     }
   }
 });

@@ -30,7 +30,7 @@ qx.Class.define("qxl.datagrid.demo.array.ArrayDemo", {
     super();
     this.setLayout(new qx.ui.layout.VBox(10));
     let grid = this.getQxObject("grid");
-    grid;
+    this.add(new qx.ui.basic.Label("Double-click a title to edit it"), { flex: 0 });
     this.add(grid, { flex: 1 });
   },
 
@@ -53,7 +53,8 @@ qx.Class.define("qxl.datagrid.demo.array.ArrayDemo", {
           path: "title",
           caption: "Title",
           minWidth: 200,
-          flex: 1
+          flex: 1,
+          editable: true
         })
       );
 

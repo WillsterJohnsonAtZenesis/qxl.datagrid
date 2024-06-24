@@ -27,11 +27,11 @@ qx.Class.define("qxl.datagrid.ui.factory.SimpleWidgetFactory", {
   extend: qxl.datagrid.ui.factory.AbstractWidgetFactory,
 
   events: {
-    /** 
+    /**
      * @typedef BindWidgetData
      * @property {qx.ui.core.Widget} widget the wiget to bind
      * @property {qx.core.Object} model the model the widget is bound to
-     * 
+     *
      * Fired when a widget is bound; data is {BindWidgetData} */
     "bindWidget": "qx.event.type.Data",
 
@@ -53,6 +53,16 @@ qx.Class.define("qxl.datagrid.ui.factory.SimpleWidgetFactory", {
     /**
      * @override
      */
+    bindEditor(editor, model) {
+      let bindingData = editor.getUserData("qxl.datagrid.factory.AbstractWidgetFactory.bindingData");
+      bindingData.binding = bindingData.column.bindEditor(editor, model, this);
+      bindingData.model = model;
+      this.fireDataEvent("bindWidget", { widget: editor, model });
+    },
+
+    /**
+     * @override
+     */
     unbindWidget(widget) {
       let bindingData = widget.getUserData("qxl.datagrid.factory.AbstractWidgetFactory.bindingData");
       if (bindingData.binding) {
@@ -69,6 +79,16 @@ qx.Class.define("qxl.datagrid.ui.factory.SimpleWidgetFactory", {
      */
     _createWidget(column) {
       return column.createWidgetForDisplay();
+    },
+
+    /**
+     * @override
+     */
+    _createEditor(column) {
+      if (column.getEditable()) {
+        return column.createWidgetForEdit();
+      }
+      return null;
     }
   }
 });
