@@ -34,7 +34,14 @@ qx.Class.define("qxl.datagrid.column.FileSizeColumn", {
   },
   construct() {
     super();
-    this.setBindingOptions((widget, model) => {
+    this.setBindingOptions((widget, model, reverse) => {
+      if (reverse) {
+        return {
+          converter: (data, model, source, target) => {
+            return !data ? null : parseInt(data);
+          }
+        };
+      }
       return {
         converter: (data, model, source, target) => {
           return !data ? "" : this._convertValueForDisplay(data);

@@ -24,8 +24,17 @@ qx.Class.define("qxl.datagrid.column.NumberColumn", {
 
   construct() {
     super();
-    this.setBindingOptions((widget, model) => {
-      converter: value => (value ? value.toFixed(2) : "");
+    this.setBindingOptions((widget, model, reverse) => {
+      if (reverse) {
+        return {
+          converter: (data, model, source, target) => {
+            return !data ? null : parseFloat(data);
+          }
+        };
+      }
+      return {
+        converter: value => (value ? value.toFixed(2) : "")
+      };
     });
   }
 });

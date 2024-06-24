@@ -99,6 +99,11 @@ qx.Class.define("qxl.datagrid.column.Column", {
       event: "changeEnabled"
     },
 
+    /**
+     * Options passed to the bindings.
+     *
+     * @type {(widget: qx.ui.core.Widget, model: qx.ui.core.Object, reverse: boolean) => object | null}
+     */
     bindingOptions: {
       init: () => undefined
     },
@@ -169,7 +174,7 @@ qx.Class.define("qxl.datagrid.column.Column", {
     },
 
     /**
-     * Whether or not the column is editable, enforced by the widgetFactory
+     * Whether or not the column will display a widget for editing, enforced by the widgetFactory
      *
      * If true, then double clicking the cell will swap in the widget returned by {@link #createWidgetForEdit}
      */
@@ -289,7 +294,7 @@ qx.Class.define("qxl.datagrid.column.Column", {
       let bindings = this.initBinding(widget, model, factory);
       if (path) {
         if (model) {
-          let bindingId = widget.bind("value", model, path, this.getBindingOptions()(widget, model));
+          let bindingId = widget.bind("value", model, path, this.getBindingOptions()(widget, model, true));
           bindings.add(widget, bindingId);
         }
       }
@@ -309,7 +314,7 @@ qx.Class.define("qxl.datagrid.column.Column", {
       let bindings = new qxl.datagrid.binding.Bindings(model);
       if (path) {
         if (model) {
-          let bindingId = model.bind(path, widget, "value", this.getBindingOptions()(widget, model));
+          let bindingId = model.bind(path, widget, "value", this.getBindingOptions()(widget, model, false));
           bindings.add(model, bindingId);
         }
       }

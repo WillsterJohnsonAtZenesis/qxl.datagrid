@@ -7,12 +7,9 @@ DataGrid is a Qooxdoo UI component that provides a virtual, scrolling, spreadshe
 - Grid or Tree style - operates as a spreadsheet-like control of rows and columns of data, or as a tree of data where each node
   in the tree is row and can have multiple columns
 - Fully stylable using Qooxdoo themes
+- Inline editing of cells
 
 NOTE:: This is beta release, but will be in active use and development over he next few months.
-
-### Coming Soon (tm)
-
-- The current version is read only, but it will be possible to add edit cells inline in the near future.
 
 ## Trying the Demos
 
@@ -153,6 +150,11 @@ the sizing, the binding, and display of individual cells.
 
 The column is able to choose how to display and bind the widgets, so you can easily provide a uniform experience for the
 whole grid.
+
+Columns may also provide a widget for editing the model. By default, this is a plain
+`qx.ui.form.TextField`, with a bidirectional binding to the same model property used for display.
+The editor widget can be modified by overriding `createWidgetForEdit` in the column, and the editor
+bindings can be modified by overriding `bindEditor`.
 
 ## Internal Concepts
 

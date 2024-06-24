@@ -35,7 +35,18 @@ qx.Class.define("qxl.datagrid.column.DateColumn", {
 
   construct() {
     super();
-    this.setBindingOptions((widget, model) => {
+    this.setBindingOptions((widget, model, reverse) => {
+      if (reverse) {
+        return {
+          converter: (data, model, source, target) => {
+            if (!data) {
+              return null;
+            }
+            let format = this.getDateFormat() || qx.util.format.DateFormat.getDateInstance();
+            return format.parse(data);
+          }
+        };
+      }
       return {
         converter: (data, model, source, target) => {
           if (!data) {
